@@ -1,21 +1,176 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title><%= productName %></title>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Paulo Programador - Soluções em Automação e DevOps</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+      color: #333;
+    }
+    header {
+      background: #2e86de;
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5em;
+    }
+    header p {
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+    .container {
+      max-width: 960px;
+      margin: auto;
+      padding: 20px;
+    }
+    section {
+      margin-bottom: 40px;
+    }
+    h2 {
+      color: #2e86de;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    ul {
+      padding-left: 20px;
+    }
+    .cta {
+      background: #dff0ff;
+      padding: 30px;
+      text-align: center;
+      border-radius: 10px;
+    }
+    .cta a {
+      background: #2e86de;
+      color: white;
+      text-decoration: none;
+      padding: 12px 25px;
+      border-radius: 5px;
+      font-weight: bold;
+      display: inline-block;
+      margin: 10px;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #eee;
+      font-size: 0.9em;
+    }
+    @media (max-width: 768px) {
+      .features {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
 
-    <meta charset="utf-8">
-    <meta name="description" content="<%= productDescription %>">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="msapplication-tap-highlight" content="no">
-    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width<% if (ctx.mode.cordova || ctx.mode.capacitor) { %>, viewport-fit=cover<% } %>">
+  <header>
+    <h1>🤖 Paulo Programador</h1>
+    <p>Seu Gestor de Automação & DevOps Sob Medida</p>
+  </header>
 
-    <link rel="icon" type="image/png" sizes="128x128" href="icons/favicon-128x128.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
-    <link rel="icon" type="image/ico" href="favicon.ico">
-  </head>
-  <body>
-    <!-- quasar:entry-point -->
-  </body>
+  <div class="container">
+    <section>
+      <h2>✨ Soluções sob medida para o seu negócio</h2>
+      <p>Transformo complexidade tecnológica em soluções simples e eficazes. Automação de processos e infraestrutura DevOps personalizada para empresas que valorizam eficiência, segurança e resultados concretos.</p>
+    </section>
+
+    <section>
+      <h2>🤖 Seu Gestor de Automação</h2>
+      <div class="features">
+        <div class="card">
+          <h3>🔍 Diagnóstico de Processos</h3>
+          <p>Mapeio suas rotinas e identifico oportunidades reais de automação.</p>
+        </div>
+        <div class="card">
+          <h3>🔗 Integrações Inteligentes</h3>
+          <p>Conecte sistemas diversos através de APIs e automações personalizadas.</p>
+        </div>
+        <div class="card">
+          <h3>🧠 Inteligência no Fluxo</h3>
+          <p>Automatize marketing, atendimento, relatórios e operações com lógica de negócios.</p>
+        </div>
+        <div class="card">
+          <h3>📈 Resultados Visíveis</h3>
+          <p>Ganhos em produtividade com relatórios claros e suporte contínuo.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>💻 DevOps Sob Medida</h2>
+      <div class="features">
+        <div class="card">
+          <h3>⚙️ Instalação Open Source</h3>
+          <p>Implantação de soluções empresariais como gestão, relacionamento com clientes e automações operacionais.</p>
+        </div>
+        <div class="card">
+          <h3>🔐 Segurança em Primeiro Lugar</h3>
+          <p>Ambientes isolados com Docker, SSL, backups e monitoramento.</p>
+        </div>
+        <div class="card">
+          <h3>🚀 Performance e Escalabilidade</h3>
+          <p>Infraestrutura otimizada com proxy reverso, bancos de dados eficientes e aplicações sob demanda.</p>
+        </div>
+        <div class="card">
+          <h3>💸 Economia de Recursos</h3>
+          <p>Infra enxuta, automatizada e com custos sob controle, sem surpresas.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <h2>💬 Vamos conversar?</h2>
+      <p>Descubra como a automação e o DevOps podem transformar seu negócio. Entre em contato agora mesmo.</p>
+      <a href="https://wa.me/5599999999999" target="_blank">Falar com Paulo no WhatsApp</a>
+    </section>
+	
+	<section>
+      <h2>📂 Casos de Sucesso</h2>
+      <div class="features">
+        <div class="card">
+          <h3>🔧 ERP para Casas Lotéricas</h3>
+          <p>Sistema completo de gestão com emissão de boletos, controle financeiro e relatórios sob demanda. Atendendo mais de 50 unidades em todo o Brasil.</p>
+        </div>
+        <div class="card">
+          <h3>📊 Integração Marketing + WhatsApp</h3>
+          <p>Fluxos automatizados de marketing com envio de mensagens segmentadas via WhatsApp e aumento de conversão.</p>
+        </div>
+        <div class="card">
+          <h3>☁️ Infraestrutura Dockerizada</h3>
+          <p>Ambiente completo com containers, proxy reverso, backups e monitoramento para empresa SaaS em crescimento acelerado.</p>
+        </div>
+        <div class="card">
+          <h3>💬 Atendimento com Chatwoot</h3>
+          <p>Implantação de sistema unificado para suporte ao cliente, com integração a CRM e automação de processos.</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    © 2025 Paulo Programador. Todos os direitos reservados.
+  </footer>
+
+</body>
 </html>
