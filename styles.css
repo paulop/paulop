@@ -1,0 +1,111 @@
+/* Estilos para a página inicial - pp.eti.br */
+
+/* Seção Hero */
+.hero {
+    background: #f5f8fa;
+    padding: 60px 0;
+}
+
+/* Cards de Serviços */
+.service-card {
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 24px;
+    height: 100%;
+}
+
+/* Depoimentos */
+.testimonial {
+    background: #ffffff;
+    border-left: 4px solid #0d6efd;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* Call to Action */
+.cta {
+    background: #0d6efd;
+    color: #fff;
+    padding: 40px 0;
+    text-align: center;
+}
+
+.cta a {
+    background: #fff;
+    color: #0d6efd;
+    border-radius: 24px;
+    padding: 12px 36px;
+    font-size: 1.2rem;
+    text-decoration: none;
+}
+
+/* Social Proof - Logos dos Clientes */
+.social-proof-logos img {
+    margin: 0 10px;
+}
+
+/* Adicionar hover effects para melhor UX */
+.service-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.cta a:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
+/* Estilos adicionais para layout em grid */
+.row .col-md-6 .service-card {
+    height: 100%;
+}
+
+/* Navegação do Rodapé */
+.footer-nav {
+    background: #f8f9fa;
+    padding: 30px 0 20px 0;
+    border-top: 1px solid #dee2e6;
+}
+
+.footer-nav h5 {
+    color: #0d6efd;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.footer-nav .nav-link {
+    color: #6c757d;
+    padding: 5px 0;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-nav .nav-link:hover {
+    color: #0d6efd;
+    text-decoration: underline;
+}
+
+/* Responsividade adicional */
+@media (max-width: 768px) {
+    .hero {
+        padding: 40px 0;
+    }
+    
+    .service-card {
+        margin-bottom: 20px;
+    }
+    
+    .social-proof-logos img {
+        margin: 5px;
+        max-width: 100px;
+    }
+    
+    .row .col-md-6 {
+        margin-bottom: 1rem;
+    }
+    
+    .footer-nav {
+        text-align: center;
+    }
+}
