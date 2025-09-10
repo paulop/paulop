@@ -10,13 +10,17 @@ class PaintSuctionAnimation {
         this.isActive = true;
         this.mouseX = 0;
         this.mouseY = 0;
+        this.lastMouseX = 0;
+        this.lastMouseY = 0;
         this.suctionAreas = []; // Areas where paint has been permanently sucked
+        this.activeSuctions = []; // Currently growing suction holes
         this.animationId = null;
         this.paintSucked = false; // Track if initial paint fill is done
         
         // Configuration
         this.suctionRadius = 70;
         this.maxSuctionAreas = 200; // Increased for better coverage
+        this.triangleSize = 50; // Size of the vacuum nozzle triangle
         
         this.init();
     }
@@ -71,6 +75,14 @@ class PaintSuctionAnimation {
         // Mouse movement
         window.addEventListener('mousemove', (e) => {
             if (this.isActive) {
+                // Initialize lastMouse position if this is the first movement
+                if (this.lastMouseX === 0 && this.lastMouseY === 0) {
+                    this.lastMouseX = e.clientX;
+                    this.lastMouseY = e.clientY;
+                } else {
+                    this.lastMouseX = this.mouseX;
+                    this.lastMouseY = this.mouseY;
+                }
                 this.mouseX = e.clientX;
                 this.mouseY = e.clientY;
                 this.createSuctionArea(e.clientX, e.clientY);
@@ -81,6 +93,14 @@ class PaintSuctionAnimation {
         window.addEventListener('touchmove', (e) => {
             if (this.isActive && e.touches.length > 0) {
                 const touch = e.touches[0];
+                // Initialize lastMouse position if this is the first movement
+                if (this.lastMouseX === 0 && this.lastMouseY === 0) {
+                    this.lastMouseX = touch.clientX;
+                    this.lastMouseY = touch.clientY;
+                } else {
+                    this.lastMouseX = this.mouseX;
+                    this.lastMouseY = this.mouseY;
+                }
                 this.mouseX = touch.clientX;
                 this.mouseY = touch.clientY;
                 this.createSuctionArea(touch.clientX, touch.clientY);
@@ -121,16 +141,36 @@ class PaintSuctionAnimation {
         });
         
         if (!tooClose) {
-            // Add new permanent suction area
+            // Calculate angle based on mouse movement direction
+            let dx = x - this.lastMouseX;
+            let dy = y - this.lastMouseY;
+            
+            // Default angle if no movement detected
+            if (dx === 0 && dy === 0) {
+                dx = 1; // Default to rightward direction
+            }
+            
+            const angle = Math.atan2(dy, dx);
+            
+            // Add to permanent suction areas (for resize redraw)
+            const radius = this.suctionRadius + Math.random() * 20 - 10;
             this.suctionAreas.push({
                 x: x,
                 y: y,
-                radius: this.suctionRadius + Math.random() * 20 - 10, // Slight variation
+                radius: radius,
+                angle: angle,
                 timestamp: Date.now()
             });
             
-            // Immediately suck paint from this area
-            this.suckPaintAt(x, y, this.suctionRadius + Math.random() * 20 - 10);
+            // Add to active growing suctions for smooth animation
+            this.activeSuctions.push({
+                x: x,
+                y: y,
+                radius: 0,
+                maxRadius: radius,
+                angle: angle,
+                growing: true
+            });
             
             // Limit number of suction areas for performance
             if (this.suctionAreas.length > this.maxSuctionAreas) {
@@ -139,7 +179,7 @@ class PaintSuctionAnimation {
         }
     }
 
-    suckPaintAt(x, y, radius) {
+    suckPaintWithTriangle(x, y, radius, angle) {
         // Set composite operation to cut holes (suck paint)
         this.ctx.globalCompositeOperation = 'destination-out';
         
@@ -149,14 +189,35 @@ class PaintSuctionAnimation {
             x, y, radius
         );
         gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-        gradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.9)');
-        gradient.addColorStop(0.85, 'rgba(255, 255, 255, 0.5)');
+        gradient.addColorStop(0.4, 'rgba(255, 255, 255, 0.9)');
+        gradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.6)');
         gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
         
         this.ctx.fillStyle = gradient;
+        
+        // Draw triangular vacuum nozzle pointing in direction of movement
+        this.ctx.save();
+        this.ctx.translate(x, y);
+        this.ctx.rotate(angle);
+        
         this.ctx.beginPath();
-        this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+        // Create triangle pointing forward (to the right when angle = 0)
+        const triangleWidth = radius * 1.2;
+        const triangleHeight = radius * 0.8;
+        
+        // Triangle vertices: point facing forward, base behind
+        this.ctx.moveTo(triangleWidth * 0.6, 0); // Point
+        this.ctx.lineTo(-triangleWidth * 0.4, -triangleHeight * 0.5); // Top base
+        this.ctx.lineTo(-triangleWidth * 0.4, triangleHeight * 0.5); // Bottom base
+        this.ctx.closePath();
         this.ctx.fill();
+        
+        // Add a circular base for better coverage
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, radius * 0.7, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        this.ctx.restore();
         
         // Reset composite operation
         this.ctx.globalCompositeOperation = 'source-over';
@@ -168,18 +229,39 @@ class PaintSuctionAnimation {
         
         // Redraw all existing suction areas to maintain the sucked state
         this.suctionAreas.forEach(area => {
-            this.suckPaintAt(area.x, area.y, area.radius);
+            this.suckPaintWithTriangle(area.x, area.y, area.radius, area.angle);
         });
     }
     
     animate() {
         if (!this.isActive) return;
         
-        // No need to continuously redraw - the paint stays sucked!
-        // Animation loop is maintained for potential future effects
-        // but the main suction effect is applied immediately and permanently
+        // Clear and refill canvas
+        this.fillCanvas();
         
-        // Continue animation loop for other potential effects
+        // Redraw all permanent suction areas first
+        this.suctionAreas.forEach(area => {
+            this.suckPaintWithTriangle(area.x, area.y, area.radius, area.angle);
+        });
+        
+        // Draw and update active growing suctions for smooth animation
+        for (let i = this.activeSuctions.length - 1; i >= 0; i--) {
+            const suction = this.activeSuctions[i];
+            
+            if (suction.growing && suction.radius < suction.maxRadius) {
+                suction.radius += 3; // Smooth growth speed
+            } else {
+                suction.growing = false;
+                // Remove completed suctions from active list
+                this.activeSuctions.splice(i, 1);
+                continue;
+            }
+            
+            // Draw the growing triangular suction
+            this.suckPaintWithTriangle(suction.x, suction.y, suction.radius, suction.angle);
+        }
+        
+        // Continue animation loop
         this.animationId = requestAnimationFrame(() => this.animate());
     }
     
