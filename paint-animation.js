@@ -10,13 +10,13 @@ class PaintSuctionAnimation {
         this.isActive = true;
         this.mouseX = 0;
         this.mouseY = 0;
-        this.holes = [];
+        this.suctionAreas = []; // Areas where paint has been permanently sucked
         this.animationId = null;
+        this.paintSucked = false; // Track if initial paint fill is done
         
         // Configuration
-        this.holeRadius = 60;
-        this.fadeSpeed = 0.98;
-        this.maxHoles = 100;
+        this.suctionRadius = 70;
+        this.maxSuctionAreas = 200; // Increased for better coverage
         
         this.init();
     }
@@ -42,8 +42,9 @@ class PaintSuctionAnimation {
         // Set canvas size to viewport
         this.resizeCanvas();
         
-        // Initial blue paint
+        // Initial blue paint - only fill once
         this.fillCanvas();
+        this.paintSucked = true;
         
         // Add event listeners
         this.addEventListeners();
@@ -72,7 +73,7 @@ class PaintSuctionAnimation {
             if (this.isActive) {
                 this.mouseX = e.clientX;
                 this.mouseY = e.clientY;
-                this.createHole(e.clientX, e.clientY);
+                this.createSuctionArea(e.clientX, e.clientY);
             }
         });
         
@@ -82,7 +83,7 @@ class PaintSuctionAnimation {
                 const touch = e.touches[0];
                 this.mouseX = touch.clientX;
                 this.mouseY = touch.clientY;
-                this.createHole(touch.clientX, touch.clientY);
+                this.createSuctionArea(touch.clientX, touch.clientY);
                 e.preventDefault();
             }
         });
@@ -90,75 +91,95 @@ class PaintSuctionAnimation {
         // Handle window resize
         window.addEventListener('resize', () => {
             this.resizeCanvas();
-            this.fillCanvas();
+            // Only refill if we haven't started sucking paint yet
+            if (!this.paintSucked || this.suctionAreas.length === 0) {
+                this.fillCanvas();
+            } else {
+                // Recreate the current state with sucked areas
+                this.redrawCurrentState();
+            }
         });
         
         // Deactivate after significant interaction
         let interactionCount = 0;
         const checkDeactivation = () => {
             interactionCount++;
-            if (interactionCount > 200) { // After ~200 mouse movements
-                setTimeout(() => this.deactivate(), 3000); // Deactivate after 3 seconds
+            if (interactionCount > 150) { // After ~150 mouse movements
+                setTimeout(() => this.deactivate(), 2000); // Deactivate after 2 seconds
             }
         };
         
         window.addEventListener('mousemove', checkDeactivation);
     }
     
-    createHole(x, y) {
-        // Add new hole
-        this.holes.push({
-            x: x,
-            y: y,
-            radius: 0,
-            maxRadius: this.holeRadius + Math.random() * 20,
-            growing: true
+    createSuctionArea(x, y) {
+        // Check if we're too close to an existing suction area to avoid overlap
+        const minDistance = this.suctionRadius * 0.3;
+        const tooClose = this.suctionAreas.some(area => {
+            const distance = Math.sqrt((area.x - x) ** 2 + (area.y - y) ** 2);
+            return distance < minDistance;
         });
         
-        // Limit number of holes for performance
-        if (this.holes.length > this.maxHoles) {
-            this.holes.splice(0, this.holes.length - this.maxHoles);
+        if (!tooClose) {
+            // Add new permanent suction area
+            this.suctionAreas.push({
+                x: x,
+                y: y,
+                radius: this.suctionRadius + Math.random() * 20 - 10, // Slight variation
+                timestamp: Date.now()
+            });
+            
+            // Immediately suck paint from this area
+            this.suckPaintAt(x, y, this.suctionRadius + Math.random() * 20 - 10);
+            
+            // Limit number of suction areas for performance
+            if (this.suctionAreas.length > this.maxSuctionAreas) {
+                this.suctionAreas.splice(0, this.suctionAreas.length - this.maxSuctionAreas);
+            }
         }
+    }
+
+    suckPaintAt(x, y, radius) {
+        // Set composite operation to cut holes (suck paint)
+        this.ctx.globalCompositeOperation = 'destination-out';
+        
+        // Create gradient for smooth vacuum suction effect
+        const gradient = this.ctx.createRadialGradient(
+            x, y, 0,
+            x, y, radius
+        );
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        gradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.9)');
+        gradient.addColorStop(0.85, 'rgba(255, 255, 255, 0.5)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        
+        this.ctx.fillStyle = gradient;
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // Reset composite operation
+        this.ctx.globalCompositeOperation = 'source-over';
+    }
+
+    redrawCurrentState() {
+        // Refill canvas with blue paint
+        this.fillCanvas();
+        
+        // Redraw all existing suction areas to maintain the sucked state
+        this.suctionAreas.forEach(area => {
+            this.suckPaintAt(area.x, area.y, area.radius);
+        });
     }
     
     animate() {
         if (!this.isActive) return;
         
-        // Clear and refill canvas
-        this.fillCanvas();
+        // No need to continuously redraw - the paint stays sucked!
+        // Animation loop is maintained for potential future effects
+        // but the main suction effect is applied immediately and permanently
         
-        // Set composite operation to cut holes
-        this.ctx.globalCompositeOperation = 'destination-out';
-        
-        // Draw and update holes
-        for (let i = this.holes.length - 1; i >= 0; i--) {
-            const hole = this.holes[i];
-            
-            if (hole.growing && hole.radius < hole.maxRadius) {
-                hole.radius += 2;
-            } else {
-                hole.growing = false;
-            }
-            
-            // Create gradient for smooth edges
-            const gradient = this.ctx.createRadialGradient(
-                hole.x, hole.y, 0,
-                hole.x, hole.y, hole.radius
-            );
-            gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-            gradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.8)');
-            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-            
-            this.ctx.fillStyle = gradient;
-            this.ctx.beginPath();
-            this.ctx.arc(hole.x, hole.y, hole.radius, 0, Math.PI * 2);
-            this.ctx.fill();
-        }
-        
-        // Reset composite operation
-        this.ctx.globalCompositeOperation = 'source-over';
-        
-        // Continue animation
+        // Continue animation loop for other potential effects
         this.animationId = requestAnimationFrame(() => this.animate());
     }
     
